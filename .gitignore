@@ -1,0 +1,64 @@
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Vite build output
+dist/
+
+# Local environment files
+.env
+.env.*.local
+
+# TypeScript cache
+*.tsbuildinfo
+
+# ESLint cache
+.eslintcache
+
+# Vite
+.vite/
+
+# Editor directories and files (PhpStorm)
+.idea/
+*.iml
+
+# Mac-specific files
+.DS_Store
+
+# npm package builds
+*.tgz
+
+# Temporary files
+temp/
+tmp/
+
+# Lock files
+package-lock.json
+yarn.lock
+.pnpm-debug.log
+
+# Coverage output
+coverage/
+
+# JetBrains IDE files (PhpStorm, WebStorm)
+.idea/
+.idea/modules.xml
+.idea/*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/jsLibraryMappings.xml
+
+# VSCode settings (if using VSCode in addition to PhpStorm)
+.vscode/
+
+# Test coverage
+coverage/
