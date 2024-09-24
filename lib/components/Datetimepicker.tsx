@@ -151,7 +151,3 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({ locale = 'en' }) => {
 };
 
 export default DateTimepicker;
-
-// TODO : - custom Label,
-//        - update README with locales
-//        - Make simpler import
