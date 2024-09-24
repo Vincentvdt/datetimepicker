@@ -22,9 +22,9 @@ export interface CalendarStyle {
   };
 }
 
-const DatetimePicker = styled.div`
+const DatetimePicker = styled.div<{ width?: string | number }>`
   position: relative;
-  width: 244px;
+  width: ${({ width }) => width && (typeof width === 'string' ? width : `${width}px`)};
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
@@ -40,12 +40,13 @@ const DatetimePicker = styled.div`
 
 const DateInput = styled.input<{
   isPickerOpen: boolean;
+  width?: string | number;
   styles?: CalendarStyle;
 }>`
   cursor: pointer;
   padding: 10px;
   border: none;
-  width: 500px;
+  width: ${({ width }) => (width ? (typeof width === 'string' ? width : `${width}px`) : '100%')};
   background: ${({ styles }) => styles?.colors?.background || '#fff'};
   border-radius: 5px;
   color: ${({ styles }) => styles?.colors?.textPrimary || '#000'};
@@ -67,11 +68,11 @@ const DateInput = styled.input<{
   }
 `;
 
-const CalendarWrapper = styled.div<{ styles?: CalendarStyle }>`
+const CalendarWrapper = styled.div<{ styles?: CalendarStyle; width?: string | number }>`
   position: absolute;
   top: 54px;
   display: flex;
-  width: 100%;
+  width: ${({ width }) => (width ? (typeof width === 'string' ? width : `${width}px`) : '200px')};
   padding: 10px;
   flex-direction: column;
   align-items: center;
@@ -89,6 +90,8 @@ const CalendarWrapper = styled.div<{ styles?: CalendarStyle }>`
 interface DateTimePickerProps {
   locale?: 'en' | 'fr';
   selected?: Date;
+  width?: string | number;
+  calendarWidth?: string | number;
   name?: string;
   input?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>;
   customInput?: React.ReactElement;
@@ -107,6 +110,8 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
   customInput,
   onDateChange,
   calendar,
+  width,
+  calendarWidth,
 }) => {
   const options = defaultOptions[locale];
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(selected || new Date());
@@ -152,7 +157,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
   };
 
   return (
-    <DatetimePicker>
+    <DatetimePicker width={width}>
       {customInput ? (
         React.cloneElement(customInput, {
           value: inputValue,
@@ -162,6 +167,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
       ) : (
         <DateInput
           isPickerOpen={isPickerOpen}
+          width={width}
           styles={calendar}
           {...input}
           type={input?.type || 'text'}
@@ -174,7 +180,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
       {/*</DateInputWrapper>*/}
 
       {isPickerOpen && (
-        <CalendarWrapper>
+        <CalendarWrapper width={calendarWidth}>
           <Header
             viewMode={viewMode}
             options={options}
