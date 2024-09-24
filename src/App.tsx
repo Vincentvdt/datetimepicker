@@ -1,12 +1,12 @@
-import React from "react";
-import DateTimepicker from "../lib/components/Datetimepicker";
+import React from 'react';
+import { DateTimepicker } from '../lib';
 
 function App() {
-    return (
-        <>
-            <DateTimepicker locale="fr"/>
-        </>
-    );
+  return (
+    <>
+      <DateTimepicker locale="fr" />
+    </>
+  );
 }
 
 export default App;
