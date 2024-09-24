@@ -1,12 +1,9 @@
-import React from 'react';
 import { DateTimepicker } from '../lib';
+import { useState } from 'react';
 
 function App() {
-  return (
-    <>
-      <DateTimepicker locale="fr" />
-    </>
-  );
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  return <DateTimepicker onDateChange={(date) => setStartDate(date)} selected={startDate} />;
 }
 
 export default App;
