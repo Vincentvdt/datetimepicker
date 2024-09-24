@@ -4,6 +4,24 @@ import Header from './Header';
 import Body from './Body';
 import defaultOptions from '../assets/data/locales';
 
+export interface CalendarStyle {
+  colors?: {
+    textPrimary?: string; // Main text color (current month days)
+    textSecondary?: string; // Secondary text color (other months or inactive)
+    textHover?: string; // Text color on hover
+    textDisabled?: string; // Color for disabled days
+    primary?: string; // Primary color (buttons/navigation)
+    primaryHover?: string; // Hover color for primary elements
+    selected?: string; // Background color for selected date
+    background?: string; // General background color
+  };
+  fontSizes?: {
+    cell?: string | number; // Font size for calendar day cells
+    date?: string | number; // Font size for the date (header)
+    dayLabels?: string | number; // Font size for day labels (Mon, Tue, etc.)
+  };
+}
+
 const DatetimePicker = styled.div`
   position: relative;
   width: 244px;
@@ -20,31 +38,36 @@ const DatetimePicker = styled.div`
   }
 `;
 
-const DateInputWrapper = styled.div<{ isPickerOpen: boolean }>`
-  display: flex;
-  align-items: center;
-  background: #fff;
+const DateInput = styled.input<{
+  isPickerOpen: boolean;
+  styles?: CalendarStyle;
+}>`
+  cursor: pointer;
+  padding: 10px;
+  border: none;
+  width: 500px;
+  background: ${({ styles }) => styles?.colors?.background || '#fff'};
   border-radius: 5px;
-  border: 1px solid #e3e3e3;
-  padding: 0;
-  width: 100%;
+  color: ${({ styles }) => styles?.colors?.textPrimary || '#000'};
+  font-size: ${({ styles }) =>
+    styles?.fontSizes?.date
+      ? typeof styles.fontSizes.date === 'number'
+        ? `${styles.fontSizes.date}px`
+        : styles.fontSizes.date
+      : '12px'};
+  font-weight: 700;
+  outline: ${({ isPickerOpen }) => (isPickerOpen ? '2px solid #0E7AF8' : '1px solid #e3e3e3')};
 
-  input {
-    cursor: pointer;
-    padding: 10px;
-    border: none;
-    width: 100%;
-    border-radius: 5px;
-    background: #fff;
-    color: #0c3667;
-    font-size: 12px;
-    font-weight: 700;
+  &:hover {
+    outline: ${({ isPickerOpen }) => (isPickerOpen ? '2px solid #0E7AF8' : '1px solid #b3b3b3')};
+  }
 
-    outline: ${({ isPickerOpen }) => (isPickerOpen ? '2px solid #0E7AF8' : 'none')};
+  &:focus {
+    outline: 2px solid ${({ styles }) => styles?.colors?.primary || '#0E7AF8'};
   }
 `;
 
-const CalendarWrapper = styled.div`
+const CalendarWrapper = styled.div<{ styles?: CalendarStyle }>`
   position: absolute;
   top: 54px;
   display: flex;
@@ -55,8 +78,9 @@ const CalendarWrapper = styled.div`
   gap: 5px;
   align-self: stretch;
   border-radius: 7px;
-  background: white;
-  border: 1px solid #e3e3e3;
+  background: ${({ styles }) => styles?.colors?.background || '#fff'};
+  border: 1px solid ${({ styles }) => styles?.colors?.primary || '#e3e3e3'};
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optionally add shadow for more visual hierarchy */
 `;
 
 /**
@@ -67,7 +91,8 @@ interface DateTimePickerProps {
   selected?: Date;
   name?: string;
   input?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>;
-  customStyles?: { [key: string]: string };
+  customInput?: React.ReactElement;
+  calendar?: CalendarStyle;
   onDateChange?: (_date: Date) => void;
 }
 
@@ -79,7 +104,9 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
   selected,
   name,
   input,
+  customInput,
   onDateChange,
+  calendar,
 }) => {
   const options = defaultOptions[locale];
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(selected || new Date());
@@ -126,12 +153,25 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
 
   return (
     <DatetimePicker>
-      <DateInputWrapper
-        isPickerOpen={isPickerOpen}
-        onClick={() => setIsPickerOpen((prev) => !prev)}
-      >
-        <input {...input} type={input?.type || 'text'} value={inputValue} name={name} readOnly />
-      </DateInputWrapper>
+      {customInput ? (
+        React.cloneElement(customInput, {
+          value: inputValue,
+          readOnly: true,
+          onClick: () => setIsPickerOpen((prev) => !prev),
+        })
+      ) : (
+        <DateInput
+          isPickerOpen={isPickerOpen}
+          styles={calendar}
+          {...input}
+          type={input?.type || 'text'}
+          value={inputValue}
+          name={name}
+          onClick={() => setIsPickerOpen((prev) => !prev)}
+          readOnly
+        />
+      )}
+      {/*</DateInputWrapper>*/}
 
       {isPickerOpen && (
         <CalendarWrapper>
@@ -145,6 +185,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
             navigationYear={navigationYear}
             handlePrevYear={handlePrevYear}
             handleNextYear={handleNextYear}
+            calendar={calendar}
           />
           <Body
             viewMode={viewMode}
@@ -153,6 +194,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
             currentDate={currentDate}
             handleSelectDate={handleSelectDate}
             handleSelectMonth={handleSelectMonth}
+            calendar={calendar}
           />
         </CalendarWrapper>
       )}
