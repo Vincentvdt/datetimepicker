@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { getDaysInMonth } from '../utils/helpers';
+import type { CalendarStyle } from './Datetimepicker.tsx';
 
 const CalendarBody = styled.div`
   overflow: auto;
@@ -16,32 +17,55 @@ const CalendarBody = styled.div`
   }
 `;
 
-const CalendarDaysTable = styled.table`
+const CalendarDaysTable = styled.table<{ styles?: CalendarStyle }>`
   th {
-    color: rgba(0, 0, 0, 0.49);
-    font-size: 10px;
+    color: ${({ styles }) => styles?.colors?.textPrimary || 'rgba(0, 0, 0, 0.49)'};
+    font-size: ${({ styles }) =>
+      styles?.fontSizes?.dayLabels
+        ? typeof styles.fontSizes.dayLabels === 'number'
+          ? `${styles.fontSizes.dayLabels}px`
+          : styles.fontSizes.dayLabels
+        : '13px'};
     font-weight: 500;
     padding: 5px 0;
   }
 `;
 
-const CalendarDayCell = styled.td<{ isSelected: boolean; currentMonth: boolean }>`
+const CalendarDayCell = styled.td<{
+  isSelected: boolean;
+  currentMonth: boolean;
+  styles?: CalendarStyle;
+}>`
   width: 30px;
   height: 30px;
-  font-size: 10px;
+  font-size: ${({ styles }) =>
+    styles?.fontSizes?.cell
+      ? typeof styles.fontSizes.cell === 'number'
+        ? `${styles.fontSizes.cell}px`
+        : styles.fontSizes.cell
+      : '10px'};
   font-style: normal;
   font-weight: 500;
   line-height: normal;
   border-radius: 3px;
   cursor: pointer;
-  color: ${({ currentMonth }) => (currentMonth ? '#0C3667' : '#797979')};
+  color: ${({ currentMonth, styles }) =>
+    currentMonth
+      ? styles?.colors?.textPrimary || '#0C3667'
+      : styles?.colors?.textSecondary || '#797979'};
   opacity: ${({ currentMonth }) => (currentMonth ? 1 : 0.3)};
-  background: ${({ isSelected }) => isSelected && 'rgba(151, 202, 238, 0.81)'};
+  background: ${({ isSelected, styles }) =>
+    isSelected
+      ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
+      : styles?.colors?.background || 'transparent'};
 
   &:hover {
-    background: rgba(151, 202, 238, 0.81);
+    background: ${({ isSelected, styles }) =>
+      isSelected
+        ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
+        : styles?.colors?.primaryHover || 'rgba(151, 202, 238, 0.81)'};
     opacity: 1;
-    color: #0c3667;
+    color: ${({ styles }) => styles?.colors?.textHover || '#797979'};
   }
 `;
 
@@ -57,21 +81,31 @@ const CalendarMonthTable = styled.table`
   }
 `;
 
-const CalendarMonthCell = styled.td<{ isSelected: boolean }>`
+const CalendarMonthCell = styled.td<{ isSelected: boolean; styles?: CalendarStyle }>`
   margin: 3px;
   padding: 10px;
   cursor: pointer;
   border-radius: 3px;
-  background: ${({ isSelected }) => (isSelected ? '#cce5ff' : 'rgba(151, 202, 238, 0.17)')};
-  color: #1961b6;
-  font-size: 12px;
-  font-style: normal;
+  background: ${({ isSelected, styles }) =>
+    isSelected
+      ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
+      : styles?.colors?.background || 'transparent'};
+  color: ${({ styles }) => styles?.colors?.textPrimary || '#0C3667'};
+  font-size: ${({ styles }) =>
+    styles?.fontSizes?.cell
+      ? typeof styles.fontSizes.cell === 'number'
+        ? `${styles.fontSizes.cell}px`
+        : styles.fontSizes.cell
+      : '12px'};
   font-weight: 700;
   line-height: normal;
   flex: 1;
 
   &:hover {
-    background: rgba(151, 202, 238, 0.52);
+    background: ${({ isSelected, styles }) =>
+      isSelected
+        ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
+        : styles?.colors?.primaryHover || 'rgba(151, 202, 238, 0.81)'};
   }
 `;
 
@@ -82,6 +116,7 @@ interface BodyProps {
     dayOfWeekShort: string[];
     monthsShort: string[];
   };
+  calendar?: CalendarStyle;
   selectedDateTime: Date;
   currentDate: Date;
   handleSelectDate: (_date: Date) => void;
@@ -101,6 +136,7 @@ const Body = ({
   currentDate,
   handleSelectDate,
   handleSelectMonth,
+  calendar,
 }: BodyProps) => {
   /**
    * Generates the calendar dates for display.
@@ -158,7 +194,7 @@ const Body = ({
   return (
     <CalendarBody>
       {viewMode === 'date' ? (
-        <CalendarDaysTable>
+        <CalendarDaysTable styles={calendar}>
           <thead>
             <tr>
               {options.dayOfWeekShort.map((day, index) => (
@@ -174,6 +210,7 @@ const Body = ({
                     selectedDateTime.toDateString() === dateObj.date.toDateString();
                   return (
                     <CalendarDayCell
+                      styles={calendar}
                       isSelected={isSelected}
                       currentMonth={dateObj.currentMonth}
                       key={index}
@@ -197,6 +234,7 @@ const Body = ({
                   return (
                     <CalendarMonthCell
                       isSelected={isSelected}
+                      styles={calendar}
                       key={monthIndex + 3 * rowIndex}
                       onClick={() => handleSelectMonth(monthIndex + 3 * rowIndex)}
                     >
