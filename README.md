@@ -1,7 +1,7 @@
 # @vincentvdt/datetimepicker
 
 A React-based DateTimePicker component built with TypeScript and styled using Emotion. This package provides a
-customizable, modern, and easy-to-use date and time picker.
+customizable, modern, and easy-to-use date picker.
 
 ## Features
 
@@ -9,6 +9,7 @@ customizable, modern, and easy-to-use date and time picker.
 - Fully customizable via Emotion for styling.
 - Compatible with modern JavaScript/TypeScript projects.
 - Lightweight and performant.
+- Supports localization (English and French).
 - Includes both ES and UMD builds.
 
 ## Installation
@@ -27,65 +28,82 @@ yarn add @vincentvdt/datetimepicker
 
 ## Usage
 
-Here’s how you can import and use the DateTimePicker component in your project:
+Here's how you can import and use the DateTimepicker component in your project:
 
 ```tsx
-import React from 'react';
-import DateTimePicker from '@vincentvdt/datetimepicker';
+import React, { useState } from 'react';
+import { DateTimepicker } from "@vincentvdt/datetimepicker";
 
-const App = () => {
-    return (
-        <div>
-            <h1>Select a date and time</h1>
-            <DateTimePicker/>
-        </div>
-    );
-};
+function App() {
+  const [ startDate, setStartDate ] = useState<Date>(new Date());
+
+  return (
+    <DateTimepicker selected={ startDate } onDateChange={ (date) => setStartDate(date) } />
+  );
+}
 
 export default App;
 ```
 
-[//]: # (## Customization)
+## Localization
 
-[//]: # ()
+DateTimepicker supports two locales: 'en' (English, default) and 'fr' (French). You can change the locale by passing the
+locale prop.
 
-[//]: # (You can customize the styles of the DateTimePicker by using Emotion’s styled components or overriding the default theme.)
+```tsx
+import React, { useState } from 'react';
+import { DateTimepicker } from "@vincentvdt/datetimepicker";
 
-[//]: # ()
+function App() {
+  const [ startDate, setStartDate ] = useState<Date>(new Date());
 
-[//]: # (```tsx)
+  return (
+    <div>
+      <h1>Select a date</h1>
 
-[//]: # ()
+      {/* French Locale */ }
+      <DateTimepicker locale="fr" />
 
-[//]: # (/** Example with Emotion styling */)
+    </div>
+  );
+}
 
-[//]: # (import React from 'react';)
+export default App;
 
-[//]: # (import DateTimePicker from '@vincentvdt/datetimepicker-ts';)
+```
 
-[//]: # (import { css } from '@emotion/react';)
+Note: Only en (English) and fr (French) are available for now. The default locale is en.
 
-[//]: # ()
+## Input Attributes
 
-[//]: # (const customStyle = css`)
+You can pass any valid HTML input attributes using the input prop. Here's an example where the input is required and has
+a placeholder
 
-[//]: # (color: red;)
+```tsx
+import React, { useState } from 'react';
+import { DateTimepicker } from "@vincentvdt/datetimepicker";
 
-[//]: # (`;)
+function App() {
+  const [ startDate, setStartDate ] = useState<Date>(new Date());
 
-[//]: # ()
+  return (
+    <DateTimepicker input={ { required: true } } // Input attributes
+    />
+  );
+}
 
-[//]: # (const CustomStyledPicker = &#40;&#41; => &#40;)
+export default App;
+```
 
-[//]: # (    <DateTimePicker css={ customStyle }/>)
+## `DateTimepicker` Props
 
-[//]: # (&#41;;)
-
-[//]: # ()
-
-[//]: # (export default CustomStyledPicker;)
-
-[//]: # (```)
+| Prop           | Type                                                        | Default      | Description                                                                |
+|----------------|-------------------------------------------------------------|--------------|----------------------------------------------------------------------------|
+| `locale`       | `'en' \| 'fr'`                                              | `'en'`       | Locale for date formatting.                                                |
+| `selected`     | `Date`                                                      | `new Date()` | The currently selected date.                                               |
+| `name`         | `string`                                                    | `''`         | Name attribute for the input element (useful in forms).                    |
+| `input`        | `Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>` | N/A          | Additional input attributes (e.g., `placeholder`, `required`, `disabled`). |
+| `onDateChange` | `(date: Date) => void`                                      | N/A          | Callback fired when the selected date changes.                             |
 
 ## Peer Dependencies
 
@@ -94,13 +112,13 @@ This package expects react and react-dom to be installed as peer dependencies:
 ```json
 {
   "peerDependencies": {
-    "react": "^17.0.0",
-    "react-dom": "^17.0.2"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   }
 }
 ```
 
-If these aren’t installed in your project, you can install them with:
+If these aren't installed in your project, you can install them with:
 
 ```bash
 npm install react react-dom
@@ -108,12 +126,12 @@ npm install react react-dom
 
 ## Contributing
 
-If you’d like to contribute to this project, follow these steps:
+If you'd like to contribute to this project, follow these steps:
 
-    1. Fork the repository.
-    2. Clone your fork to your local machine.
-    3. Create a new branch with your feature or bug fix (git checkout -b my-feature-branch).
-    4. Push the branch to your fork and open a pull request.
+1. Fork the repository.
+2. Clone your fork to your local machine.
+3. Create a new branch for your feature or bug fix: git checkout -b my-feature-branch.
+4. Push the branch to your fork and open a pull request.
 
 Please make sure to run npm run lint before submitting a pull request.
 

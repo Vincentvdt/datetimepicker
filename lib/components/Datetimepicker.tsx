@@ -64,24 +64,33 @@ const CalendarWrapper = styled.div`
  */
 interface DateTimePickerProps {
   locale?: 'en' | 'fr';
+  selected?: Date;
+  name?: string;
+  input?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>;
   customStyles?: { [key: string]: string };
   onDateChange?: (_date: Date) => void;
-  onMonthChange?: (_month: number, _year: number) => void;
-  onYearChange?: (_year: number) => void;
 }
 
 /**
  * Datepicker with calendar functionality.
  */
-const DateTimepicker: React.FC<DateTimePickerProps> = ({ locale = 'en' }) => {
+const DateTimepicker: React.FC<DateTimePickerProps> = ({
+  locale = 'en',
+  selected,
+  name,
+  input,
+  onDateChange,
+}) => {
   const options = defaultOptions[locale];
-  const [selectedDateTime, setSelectedDateTime] = useState<Date>(new Date());
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [navigationYear, setNavigationYear] = useState<number>(new Date().getFullYear());
+  const [selectedDateTime, setSelectedDateTime] = useState<Date>(selected || new Date());
+  const [currentDate, setCurrentDate] = useState<Date>(selected || new Date());
+  const [navigationYear, setNavigationYear] = useState<number>(
+    (selected || new Date()).getFullYear(),
+  );
   const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'date' | 'month'>('date');
   const [inputValue, setInputValue] = useState<string>(
-    new Date().toLocaleDateString(options.locale),
+    (selected || new Date()).toLocaleDateString(options.locale),
   );
 
   // Toggle between "date" and "month" view modes
@@ -100,6 +109,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({ locale = 'en' }) => {
     setSelectedDateTime(date);
     setInputValue(date.toLocaleDateString(options.locale));
     setIsPickerOpen(false);
+    onDateChange?.(date);
   };
 
   // Function to move to the previous year (viewMode: month)
@@ -120,7 +130,7 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({ locale = 'en' }) => {
         isPickerOpen={isPickerOpen}
         onClick={() => setIsPickerOpen((prev) => !prev)}
       >
-        <input type="text" value={inputValue} readOnly />
+        <input {...input} type={input?.type || 'text'} value={inputValue} name={name} readOnly />
       </DateInputWrapper>
 
       {isPickerOpen && (
