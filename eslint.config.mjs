@@ -1,36 +1,52 @@
-import pluginJs from "@eslint/js"
-import tseslint from "typescript-eslint"
-import pluginReact from "eslint-plugin-react"
-import tsParser from "@typescript-eslint/parser"
-import reactHooksPlugin from "eslint-plugin-react-hooks"
-import jsxA11yPlugin from "eslint-plugin-jsx-a11y"
-
+import globals from 'globals';
+import pluginJs from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import tsParser from '@typescript-eslint/parser';
+import pluginReact from 'eslint-plugin-react';
+import prettierConfig from 'eslint-config-prettier';
 
 export default [
-    {
-        files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
-        ignores: ["/dist/*", "/src/*"],
-        languageOptions: {
-            parser: tsParser, // Use TypeScript parser
-            ecmaVersion: "latest",
-            sourceType: "module",
-        },
-        settings: {
-            react: {
-                version: "detect", // Automatically detect the React version
-            },
-        },
-        plugins: {
-            "react-hooks": reactHooksPlugin, // React Hooks plugin
-            "jsx-a11y": jsxA11yPlugin, // Accessibility plugin
-        },
-        rules: {
-            "react/react-in-jsx-scope": "off", // React 17+ does not require React import
-            "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }], // Ignore unused args starting with `_`
-            "jsx-a11y/anchor-is-valid": "off", // Example of a rule you might want to disable
-        },
+  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
+  {
+    ignores: [
+      '**/dist/*',
+    ],
+  },
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+  pluginReact.configs.flat.recommended,
+  prettierConfig,
+  {
+    languageOptions: {
+      globals: globals.browser,
+      parser: tsParser,
     },
-    pluginJs.configs.recommended,
-    ...tseslint.configs.recommended,
-    pluginReact.configs.flat.recommended,
-]
+    rules: {
+      // General rules
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-unused-vars': ['warn', { 'argsIgnorePattern': '^_' }],
+      'no-console': 'warn',
+      'eqeqeq': 'error',
+
+      // TypeScript specific rules
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }],
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/consistent-type-imports': 'error',
+
+      // React specific rules
+      'react/prop-types': 'off',
+      'react/react-in-jsx-scope': 'off',
+      'react/jsx-boolean-value': ['error', 'never'],
+      'react/jsx-key': 'error',
+      'react/self-closing-comp': 'error',
+    },
+    settings: {
+      react: {
+        version: '18', // Specify React version explicitly
+      },
+    },
+  },
+];

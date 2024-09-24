@@ -1,1 +1,2 @@
-export { default as Datetimepicker } from "./components/Datetimepicker";
+// lib/index.ts
+export { default as DateTimepicker } from './components/Datetimepicker';
