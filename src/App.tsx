@@ -20,6 +20,7 @@ function App() {
   const [startDate, setStartDate] = useState<Date>(new Date());
   return (
     <DateTimepicker
+      calendarWidth={300}
       onDateChange={(date) => setStartDate(date)}
       selected={startDate}
       // calendar={{
