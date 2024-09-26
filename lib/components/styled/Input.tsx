@@ -1,5 +1,5 @@
-import type { CalendarStyle } from '../Datetimepicker.tsx';
 import styled from '@emotion/styled';
+import type { CalendarStyle } from '../../types';
 
 const Input = styled.input<{
   isPickerOpen: boolean;

@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
-import type { CalendarStyle } from '../Datetimepicker.tsx';
-import type { ViewMode } from '../../types';
+import type { CalendarStyle, ViewMode } from '../../types';
 
 const CalendarWrapper = styled.div<{ styles?: CalendarStyle; width?: string | number }>`
   position: absolute;
