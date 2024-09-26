@@ -1,6 +1,6 @@
 {
   "name": "@vincentvdt/datetimepicker",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A React datetime picker component",
   "type": "module",
   "main": "dist/datetimepicker.umd.js",
