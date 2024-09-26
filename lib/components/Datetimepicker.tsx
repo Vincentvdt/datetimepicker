@@ -1,26 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from '@emotion/styled';
 import Header from './Header';
 import Body from './Body';
 import defaultOptions from '../assets/data/locales';
-
-export interface CalendarStyle {
-  colors?: {
-    textPrimary?: string; // Main text color (current month days)
-    textSecondary?: string; // Secondary text color (other months or inactive)
-    textHover?: string; // Text color on hover
-    textDisabled?: string; // Color for disabled days
-    primary?: string; // Primary color (buttons/navigation)
-    primaryHover?: string; // Hover color for primary elements
-    selected?: string; // Background color for selected date
-    background?: string; // General background color
-  };
-  fontSizes?: {
-    cell?: string | number; // Font size for calendar day cells
-    date?: string | number; // Font size for the date (header)
-    dayLabels?: string | number; // Font size for day labels (Mon, Tue, etc.)
-  };
-}
+import { Input } from './styled/Input.tsx';
+import { CalendarWrapper } from './styled/Calendar.tsx';
+import type { DateTimePickerProps, ViewMode } from '../types';
 
 const DatetimePicker = styled.div<{ width?: string | number }>`
   position: relative;
@@ -38,69 +23,23 @@ const DatetimePicker = styled.div<{ width?: string | number }>`
   }
 `;
 
-const DateInput = styled.input<{
-  isPickerOpen: boolean;
-  width?: string | number;
-  styles?: CalendarStyle;
-}>`
-  cursor: pointer;
-  padding: 10px;
-  border: none;
-  width: ${({ width }) => (width ? (typeof width === 'string' ? width : `${width}px`) : '100%')};
-  background: ${({ styles }) => styles?.colors?.background || '#fff'};
-  border-radius: 5px;
-  color: ${({ styles }) => styles?.colors?.textPrimary || '#000'};
-  font-size: ${({ styles }) =>
-    styles?.fontSizes?.date
-      ? typeof styles.fontSizes.date === 'number'
-        ? `${styles.fontSizes.date}px`
-        : styles.fontSizes.date
-      : '12px'};
-  font-weight: 700;
-  outline: ${({ isPickerOpen }) => (isPickerOpen ? '2px solid #0E7AF8' : '1px solid #e3e3e3')};
-
-  &:hover {
-    outline: ${({ isPickerOpen }) => (isPickerOpen ? '2px solid #0E7AF8' : '1px solid #b3b3b3')};
-  }
-
-  &:focus {
-    outline: 2px solid ${({ styles }) => styles?.colors?.primary || '#0E7AF8'};
-  }
-`;
-
-const CalendarWrapper = styled.div<{ styles?: CalendarStyle; width?: string | number }>`
-  position: absolute;
-  top: 54px;
-  display: flex;
-  width: ${({ width }) => (width ? (typeof width === 'string' ? width : `${width}px`) : '200px')};
-  padding: 10px;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  align-self: stretch;
-  border-radius: 7px;
-  background: ${({ styles }) => styles?.colors?.background || '#fff'};
-  border: 1px solid ${({ styles }) => styles?.colors?.primary || '#e3e3e3'};
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optionally add shadow for more visual hierarchy */
-`;
-
 /**
- * Custom styles and events for the DateTimePicker component
- */
-interface DateTimePickerProps {
-  locale?: 'en' | 'fr';
-  selected?: Date;
-  width?: string | number;
-  calendarWidth?: string | number;
-  name?: string;
-  input?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'name'>;
-  customInput?: React.ReactElement;
-  calendar?: CalendarStyle;
-  onDateChange?: (_date: Date) => void;
-}
-
-/**
- * Datepicker with calendar functionality.
+ * DateTimePicker component used for selecting dates and times.
+ *
+ * @component DateTimepicker
+ *
+ * @param {DateTimePickerProps} props
+ * @returns {React.ReactNode} The rendered DateTimePicker component.
+ *
+ * @example
+ * <DateTimePicker
+ *   locale="fr"
+ *   selected={new Date()}
+ *   width="300px"
+ *   calendarWidth="400px"
+ *   name="datePicker"
+ *   onDateChange={(date) => console.log(date)}
+ * />
  */
 const DateTimepicker: React.FC<DateTimePickerProps> = ({
   locale = 'en',
@@ -112,7 +51,11 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
   calendar,
   width,
   calendarWidth,
-}) => {
+}: DateTimePickerProps): React.ReactNode => {
+  const customInputRef = useRef<HTMLElement | null>(null);
+  const dateTimePickerRef = useRef<HTMLDivElement | null>(null);
+
+  const [customInputWidth, setCustomInputWidth] = useState(width);
   const options = defaultOptions[locale];
   const [selectedDateTime, setSelectedDateTime] = useState<Date>(selected || new Date());
   const [currentDate, setCurrentDate] = useState<Date>(selected || new Date());
@@ -120,13 +63,13 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
     (selected || new Date()).getFullYear(),
   );
   const [isPickerOpen, setIsPickerOpen] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<'date' | 'month'>('date');
+  const [viewMode, setViewMode] = useState<ViewMode>('date');
   const [inputValue, setInputValue] = useState<string>(
     (selected || new Date()).toLocaleDateString(options.locale),
   );
 
   // Toggle between "date" and "month" view modes
-  const toggleViewMode = (view: 'date' | 'month') => setViewMode(view);
+  const toggleViewMode = (view: ViewMode) => setViewMode(view);
 
   // Function to move to the previous month (viewMode: date)
   const handlePrevMonth = () =>
@@ -155,17 +98,45 @@ const DateTimepicker: React.FC<DateTimePickerProps> = ({
     setCurrentDate(newDate); // Update the currentDate to reflect selection
     setViewMode('date'); // Switch back to date view
   };
+  useEffect(() => {
+    if (customInputRef.current) {
+      const customInputElementWidth = customInputRef.current.clientWidth;
+      setCustomInputWidth(customInputElementWidth);
+    }
+  }, [customInputRef.current]);
+
+  // Click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dateTimePickerRef.current && !dateTimePickerRef.current.contains(event.target as Node)) {
+        setIsPickerOpen(false);
+      }
+    };
+
+    // Add event listener when picker is open
+    if (isPickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    // Cleanup event listener on unmount or when picker is closed
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isPickerOpen]);
 
   return (
-    <DatetimePicker width={width}>
+    <DatetimePicker ref={dateTimePickerRef} width={customInput ? customInputWidth : width}>
       {customInput ? (
         React.cloneElement(customInput, {
           value: inputValue,
           readOnly: true,
           onClick: () => setIsPickerOpen((prev) => !prev),
+          ref: customInputRef,
         })
       ) : (
-        <DateInput
+        <Input
           isPickerOpen={isPickerOpen}
           width={width}
           styles={calendar}
