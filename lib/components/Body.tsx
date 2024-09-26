@@ -1,134 +1,23 @@
-import { useMemo } from 'react';
-import styled from '@emotion/styled';
+import React, { useMemo } from 'react';
 import { getDaysInMonth } from '../utils/helpers';
-import type { CalendarStyle } from './Datetimepicker.tsx';
+import {
+  CalendarBody,
+  CalendarDayCell,
+  CalendarDaysTable,
+  CalendarMonthCell,
+  CalendarMonthTable,
+} from './styled/Calendar.tsx';
+import type { BodyProps, DateObject } from '../types';
 
-const CalendarBody = styled.div`
-  overflow: auto;
-  width: 100%;
-
-  table {
-    height: 100%;
-    width: 100%;
-    table-layout: fixed;
-    border: none;
-    border-collapse: collapse;
-    text-align: center;
-  }
-`;
-
-const CalendarDaysTable = styled.table<{ styles?: CalendarStyle }>`
-  th {
-    color: ${({ styles }) => styles?.colors?.textPrimary || 'rgba(0, 0, 0, 0.49)'};
-    font-size: ${({ styles }) =>
-      styles?.fontSizes?.dayLabels
-        ? typeof styles.fontSizes.dayLabels === 'number'
-          ? `${styles.fontSizes.dayLabels}px`
-          : styles.fontSizes.dayLabels
-        : '13px'};
-    font-weight: 500;
-    padding: 5px 0;
-  }
-`;
-
-const CalendarDayCell = styled.td<{
-  isSelected: boolean;
-  currentMonth: boolean;
-  styles?: CalendarStyle;
-}>`
-  width: 30px;
-  height: 30px;
-  font-size: ${({ styles }) =>
-    styles?.fontSizes?.cell
-      ? typeof styles.fontSizes.cell === 'number'
-        ? `${styles.fontSizes.cell}px`
-        : styles.fontSizes.cell
-      : '10px'};
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  border-radius: 3px;
-  cursor: pointer;
-  color: ${({ currentMonth, styles }) =>
-    currentMonth
-      ? styles?.colors?.textPrimary || '#0C3667'
-      : styles?.colors?.textSecondary || '#797979'};
-  opacity: ${({ currentMonth }) => (currentMonth ? 1 : 0.3)};
-  background: ${({ isSelected, styles }) =>
-    isSelected
-      ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
-      : styles?.colors?.background || 'transparent'};
-
-  &:hover {
-    background: ${({ isSelected, styles }) =>
-      isSelected
-        ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
-        : styles?.colors?.primaryHover || 'rgba(151, 202, 238, 0.81)'};
-    opacity: 1;
-    color: ${({ styles }) => styles?.colors?.textHover || '#797979'};
-  }
-`;
-
-const CalendarMonthTable = styled.table`
-  tbody {
-    border-collapse: separate;
-    border-spacing: 10px;
-  }
-
-  tr {
-    display: flex;
-    justify-content: space-around;
-  }
-`;
-
-const CalendarMonthCell = styled.td<{ isSelected: boolean; styles?: CalendarStyle }>`
-  margin: 3px;
-  padding: 10px;
-  cursor: pointer;
-  border-radius: 3px;
-  background: ${({ isSelected, styles }) =>
-    isSelected
-      ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
-      : styles?.colors?.background || 'transparent'};
-  color: ${({ styles }) => styles?.colors?.textPrimary || '#0C3667'};
-  font-size: ${({ styles }) =>
-    styles?.fontSizes?.cell
-      ? typeof styles.fontSizes.cell === 'number'
-        ? `${styles.fontSizes.cell}px`
-        : styles.fontSizes.cell
-      : '12px'};
-  font-weight: 700;
-  line-height: normal;
-  flex: 1;
-
-  &:hover {
-    background: ${({ isSelected, styles }) =>
-      isSelected
-        ? styles?.colors?.selected || 'rgba(151, 202, 238, 0.81)'
-        : styles?.colors?.primaryHover || 'rgba(151, 202, 238, 0.81)'};
-  }
-`;
-
-// Define the type for the props
-interface BodyProps {
-  viewMode: 'date' | 'month';
-  options: {
-    dayOfWeekShort: string[];
-    monthsShort: string[];
-  };
-  calendar?: CalendarStyle;
-  selectedDateTime: Date;
-  currentDate: Date;
-  handleSelectDate: (_date: Date) => void;
-  handleSelectMonth: (_monthIndex: number) => void;
-}
-
-// Interface for the DateObject used in calendar dates.
-interface DateObject {
-  date: Date;
-  currentMonth: boolean;
-}
-
+/**
+ * The Body component renders the main content of the calendar based on the `viewMode`.
+ * It supports both 'date' and 'month' views.
+ *
+ * @component Body
+ *
+ * @param {BodyProps} props - Props for the Body component.
+ * @returns {React.ReactNode} The rendered calendar body.
+ */
 const Body = ({
   viewMode,
   options,
@@ -137,11 +26,12 @@ const Body = ({
   handleSelectDate,
   handleSelectMonth,
   calendar,
-}: BodyProps) => {
+}: BodyProps): React.ReactNode => {
   /**
-   * Generates the calendar dates for display.
+   * Generates a 2D array of date objects for the current month in view.
    *
-   * @returns {DateObject[][]} A 2D array of DateObjects representing the calendar days.
+   * @function
+   * @returns {DateObject[][]} A 2D array of DateObjects representing the days in the calendar.
    */
   const generateCalendarDates = useMemo(() => {
     const year = currentDate.getFullYear();
@@ -175,9 +65,10 @@ const Body = ({
   }, [currentDate]);
 
   /**
-   * Generates the months for selection in the calendar.
+   * Generates a 2D array representing the months for month selection view.
    *
-   * @returns {string[][]} A 2D array representing the months in the calendar.
+   * @function
+   * @returns {string[][]} A 2D array of short month labels.
    */
   const generateCalendarMonths = useMemo(
     () =>
