@@ -3,6 +3,9 @@
 A React-based DateTimePicker component built with TypeScript and styled using Emotion. This package provides a
 customizable, modern, and easy-to-use date picker.
 
+- [GitHub Repository](https://github.com/Vincentvdt/datetimepicker)
+- [Npm Package](https://www.npmjs.com/package/@vincentvdt/datetimepicker)
+
 ## Features
 
 - Built with React and TypeScript.
